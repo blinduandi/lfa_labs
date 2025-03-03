@@ -28,24 +28,14 @@ For **Variant 2**, the grammar is defined as:
   - `L → eL`  
   - `L → d`  
 
----
+# String Generation Implementation
 
-## Key Components and Explanations  
+The system starts with an initial symbol `S` and evolves the string by applying production rules. At each step, a production rule is chosen at random until the string reaches a terminal state. This method strikes a balance between structure and randomness, ensuring predictable patterns with a touch of surprise.
 
-### 1. String Generation Implementation  
-*Code implementation for string generation will be inserted here*  
+Additionally, an optional mode allows for generating invalid strings by deliberately appending characters that deviate from the established grammar, based on probabilistic criteria. This feature adds flexibility by enabling controlled deviations from strict grammatical rules.
 
-**Explanation:**  
-- **Purpose:** Generates strings starting from `S` through random production selection  
-- **Features:**  
-  - Builds strings until terminal production is reached  
-  - Optional invalid string generation mode  
-  - Probabilistic invalid character append  
-- **Mechanism:**  
-  - Iterative production rule application  
-  - Random choice at each derivation step  
+Overall, the approach is both reliable and adaptable, making it suitable for testing, simulating language patterns, or any scenario that benefits from dynamic string synthesis.
 
----
 
 ### 2. Grammar-to-Automaton Conversion  
 ```python
@@ -93,34 +83,13 @@ def string_belongs_to_language(self, input_string):
         current_state = self.transitions[current_state][symbol]
     return current_state in self.final_states
  ```   
-**Explanation:**  
-- **Purpose:** Checks string acceptance by automaton  
-- **Validation Process:**  
-  1. Starts at initial state `S`  
-  2. Processes symbols sequentially  
-  3. Follows transition table  
-  4. Verifies final state  
-- **Failure Conditions:**  
-  - Invalid symbol detection  
-  - Missing transition path  
-  - Non-final end state  
+**Explanation:**
 
----
+The automaton is designed to verify if a string is accepted. It starts at the initial state `S` and processes symbols one by one using a transition table. As each symbol is read, the automaton ensures that a valid transition exists. After processing, it checks whether the final state is acceptable. The process fails if an invalid symbol is encountered, if a necessary transition is missing, or if the final state is not an accepting state.
 
-## Summary of Implementation  
-- **Core Achievements:**  
-  - Functional grammar string generator  
-  - Bi-directional grammar-automaton conversion  
-  - Complete validation pipeline  
 
-- **Key Relationships:**  
-  - Productions ↔ Transitions  
-  - Non-terminals ↔ States  
-  - Terminal symbols ↔ Alphabet  
+## Summary of Implementation
 
-- **Practical Applications:**  
-  - Language membership testing  
-  - Automated test case generation  
-  - Grammar/automaton equivalence verification  
+The implementation achieves several core objectives: it delivers a functional grammar string generator, enables bi-directional conversion between grammar and automaton, and establishes a complete validation pipeline. This framework draws strong parallels between its components, mapping productions to transitions, non-terminals to states, and terminal symbols to the alphabet. In practical terms, these capabilities support language membership testing, automated test case generation, and the verification of grammar and automaton equivalence.
 
-This implementation provides concrete examples of formal language concepts, demonstrating the theoretical foundations through practical computational methods.
+
