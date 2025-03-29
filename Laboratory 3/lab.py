@@ -1,19 +1,3 @@
-#!/usr/bin/env python3
-"""
-Lexer for a Video Editing DSL.
-This lexer is designed for the course Formal Languages & Finite Automata.
-Author: Cretu Dumitru (with kudos to Vasile Drumea & Irina Cojuhari)
-
-Supported DSL commands:
-  LOAD, CUT, TRIM, FADE, OVERLAY, TRANSITION, EXPORT
-
-The DSL supports:
-  - Keywords (e.g., LOAD, CUT, EXPORT)
-  - Identifiers (for argument names, e.g., start, end, type)
-  - Numbers (integer and float values)
-  - String literals (enclosed in double quotes)
-  - Symbols: equal sign (=), comma (,), parentheses ( and )
-"""
 
 # Token type constants
 INTEGER, FLOAT = 'INTEGER', 'FLOAT'
@@ -165,6 +149,7 @@ def main():
     dsl_script = '''\
 LOAD "intro.mp4"
 CUT start=10 end=20
+LOAD897D "intro.mp4"
 FADE type="in" duration=2.5
 OVERLAY image="logo.png" position=(100,200)
 EXPORT "final_video.mp4"'''
