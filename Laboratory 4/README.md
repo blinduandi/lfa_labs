@@ -1,6 +1,6 @@
 # Regular Expressions
 ### Course: Formal Languages & Finite Automata  
-### Author: Darzu Catalin (Modified for Variant 2)  
+### Author: Blindu Andi 
 ### Variant: 2
 
 ----

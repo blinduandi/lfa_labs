@@ -186,14 +186,6 @@ class CombinationGenerator:
 
 
 if __name__ == "__main__":
-
-    # --------------------------------------------------------------------
-    # Variant 2 (as in your photo). Notice we remove the caret before
-    # plus/star so the tokenizer can handle it: R^+ -> R+, L^* -> L*.
-    #
-    # For 8^(9|0), we turn it into a group (8^9|8^0) so the code can
-    # produce either "8" repeated 9 times or 0 times.
-    # --------------------------------------------------------------------
     variant_2 = (
         "m? N^2 (O|P)^3 Q^2 R+ "
         "(X|Y|Z)^3 (8^9|8^0) "
