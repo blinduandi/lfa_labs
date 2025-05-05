@@ -5,6 +5,7 @@ from enum import Enum, auto
 class TokenType(Enum):
     NUMBER     = auto()
     IDENTIFIER = auto()
+    FUNC       = auto()
     PLUS       = auto()
     MINUS      = auto()
     MUL        = auto()
@@ -12,6 +13,7 @@ class TokenType(Enum):
     LPAREN     = auto()
     RPAREN     = auto()
     EOF        = auto()
+
 
 # list of (TokenType, regex) pairs
 TOKEN_REGEX = [
@@ -45,14 +47,18 @@ class Lexer:
         while self.pos < len(self.text):
             match = self.pattern.match(self.text, self.pos)
             if match:
-                for t in TokenType:
-                    lex = match.group(t.name)
+                for t in TOKEN_REGEX:  # Only those with regex rules
+                    t_type = t[0]
+                    lex = match.group(t_type.name)
                     if lex:
-                        tok = Token(t, lex)
                         self.pos = match.end()
-                        return tok
+                        # Check for trig functions
+                        if t_type == TokenType.IDENTIFIER and lex.lower() in {"sin", "cos", "tan"}:
+                            return Token(TokenType.FUNC, lex)
+                        return Token(t_type, lex)
             if self.text[self.pos].isspace():
                 self.pos += 1
                 continue
             raise SyntaxError(f"Unexpected character: '{self.text[self.pos]}'")
         return Token(TokenType.EOF, "")
+

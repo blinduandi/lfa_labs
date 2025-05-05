@@ -1,8 +1,8 @@
-# Parser & Abstract Syntax Tree Lab Report
+Canvas # Parser & Abstract Syntax Tree Lab Report
 
-**Course**: Formal Languages & Finite Automata   
-**Topic**: Parser & Building an Abstract Syntax Tree   
-**Author**: Blindu Andi   
+**Course**: Formal Languages & Finite Automata
+**Topic**: Parser & Building an Abstract Syntax Tree
+**Author**: Blindu Andi
 
 ## 1. Teorie
 
@@ -18,9 +18,9 @@ Un **AST** păstrează relațiile semantice dintre noduri (expresii, operatori, 
 4. Realizarea unui **parser recursive‐descent** pentru gramatica aritmetică:
 
    ```bnf
-   Expr   → Term (('+' | '-') Term)*
-   Term   → Factor (('*' | '/') Factor)*
-   Factor → ('+' | '-') Factor | Primary
+   Expr   → Term (( '+' | '-' ) Term)*
+   Term   → Factor (( '*' | '/' ) Factor)*
+   Factor → ( '+' | '-' ) Factor | Primary
    Primary→ NUMBER | IDENTIFIER | '(' Expr ')'
    ```
 5. Dezvoltarea unui driver care execută lexarea și parsing-ul pentru expresii de test și tipărește AST-ul rezultat.

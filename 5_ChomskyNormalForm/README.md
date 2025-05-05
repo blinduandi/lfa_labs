@@ -1,43 +1,49 @@
 # Chomsky Normal Form Converter
 
-**Course**: Formal Languages & Finite Automata   
-**Author**: Blindu Andi   
-**Variant**: 2
+**Disciplina**: Limbaje Formale și Automate Finite
+**Autor**: Blindu Andi
+**Variantă**: 2
+
+---
 
 ## 1. Teorie
 
-Forma Normală Chomsky (CNF) este o formă canonică pentru gramatici independente de context.
-O gramatică este în CNF dacă fiecare producție respectă una din cele două forme:
+Forma Normală Chomsky (Chomsky Normal Form – CNF) este o restricție standard aplicată gramaticilor independente de context (CFG – Context-Free Grammars), cu rol de a simplifica analiza sintactică și demonstrațiile teoretice.
 
-* `A → BC`, unde `A`, `B`, `C` sunt variabile (simboluri neterminale), iar `B`, `C` nu sunt simbolul de start.
-* `A → a`, unde `a` este un terminal.
+O gramatică este în **CNF** dacă **fiecare regulă de producție** este de una dintre următoarele forme:
 
-Singura excepție permisă este producția `S → ε`, unde `S` este simbolul de start și `ε` apare doar dacă limbajul conține șirul vid.
+* `A → BC` – unde `A`, `B`, `C` sunt **simboluri neterminale** (`B`, `C` ≠ simbol de start);
+* `A → a` – unde `a` este un **simbol terminal**;
+* Excepțional: `S → ε` este permis **doar dacă** `ε` (șirul vid) face parte din limbajul generat.
 
-**De ce CNF?**
+### Avantaje ale CNF:
 
-* Este punct de plecare pentru algoritmi standard de parsare (de exemplu Cocke–Younger–Kasami).
-* Simplifică demonstrațiile teoretice (ex. echivalența cu PDA).
-* Permite verificarea proprietăților de decizie (emptiness, membership) cu complexitate polinomială.
+* Este esențială pentru algoritmi de parsare eficienți (ex: **Cocke–Younger–Kasami (CYK)**);
+* Permite analiza decizională mai ușoară (ex: verificarea apartenenței unui șir la limbaj);
+* Este un punct de plecare pentru demonstrarea echivalenței între CFG și automate cu stivă (PDA);
+* Ușurează procesul de optimizare a parserelor pentru compilatoare și interpretoare.
+
+---
 
 ## 2. Obiective
 
-Să înțelegem pașii de normalizare a unei gramatici:
+Scopul principal este construirea unui convertor automat care transformă o gramatică CFG arbitrară în formă CNF, respectând următoarea secvență de pași:
 
-1. Eliminarea producțiilor `ε`.
-2. Eliminarea unit-producțiilor.
-3. Eliminarea simbolurilor neproductive și inaccesibile.
-4. Transformarea terminalelor din părți drepte cu lungime ≥ 2 în variabile proxy.
-5. Spargerea oricărei producții cu lungime > 2 în lanțuri binare.
+1. **Eliminarea ε-producțiilor** – reguli care generează șirul vid;
+2. **Eliminarea unit-producțiilor** – reguli de forma `A → B`, unde atât A, cât și B sunt neterminale;
+3. **Eliminarea simbolurilor neproductive și inaccesibile** – curățare a gramaticii de simboluri inutile;
+4. **Transformarea terminalelor din producții complexe în simboluri intermediare**;
+5. **Descompunerea producțiilor lungi în lanțuri binare** (`A → BCD` → `A → BX`, `X → CD`).
 
-Să implementăm în Python un convertor generic care primește orice gramatică independentă de context și o transformă în CNF.
-Să testăm funcționalitatea pe varianta 2 a laboratorului și să afișăm fiecare etapă intermediară pentru a valida corectitudinea.
+Vom implementa acești pași într-un program Python modular, ce permite și testarea pe gramatici multiple.
 
-**(BONUS)** Să adaptăm metoda astfel încât să poată primi și alte gramatici, nu doar pe cea din temă.
+---
 
 ## 3. Descrierea implementării
 
-Am structurat convertorul în câteva funcții principale. Iată două exemple detaliate și restul sumarizate:
+Am organizat codul în mai multe funcții, fiecare ocupându-se de o etapă specifică a transformării. Două exemple importante sunt detaliate mai jos.
+
+### 3.1 Parsare gramatică din input:
 
 ```python
 def _parse(lines: List[str]) -> Dict[str, Set[Tuple[str, ...]]]:
@@ -52,6 +58,13 @@ def _parse(lines: List[str]) -> Dict[str, Set[Tuple[str, ...]]]:
             )
     return g
 ```
+
+Această funcție transformă regulile într-o structură de date bazată pe dicționare Python:
+
+* cheia este neterminalul stâng (`LHS`),
+* valoarea este o **mulțime de tupluri** reprezentând părțile drepte ale producțiilor.
+
+### 3.2 Eliminarea ε-producțiilor:
 
 ```python
 def _rm_eps(g: Dict[str, Set[Tuple[str, ...]]], start="S"):
@@ -69,7 +82,6 @@ def _rm_eps(g: Dict[str, Set[Tuple[str, ...]]], start="S"):
     ng = {A: set() for A in g}
     for A, prods in g.items():
         for p in prods:
-            # toate submulțimile pozițiilor nullable
             idx = [i for i, s in enumerate(p) if s in nullable]
             subsets = [[]]
             for i in idx:
@@ -81,20 +93,33 @@ def _rm_eps(g: Dict[str, Set[Tuple[str, ...]]], start="S"):
     return ng
 ```
 
-Restul funcțiilor implementate (fără afișarea codului):
+Această funcție identifică simbolurile nullable (care pot duce la `ε`) și creează toate variantele posibile ale producțiilor eliminând aparițiile acestora.
 
-* `_rm_unit`: elimină unit-producțiile (`A → B`).
-* `_rm_useless`: înlătură simbolurile neproductive și inaccesibile.
-* `_term_to_var`: înlocuiește terminalele din părți drepte lungi cu variabile proxy.
-* `_break_long`: sparge producțiile cu mai mult de două simboluri în lanțuri binare.
-* `to_cnf`: orchetrează apelurile în ordine: parsing, \_rm\_eps, \_rm\_unit, \_rm\_useless, \_term\_to\_var, \_break\_long.
-* `pretty`: formatează gramatica rezultată într-un șir de caractere pentru afișare.
+---
 
-Fiecare funcție se ocupă de un pas clar în transformarea unei gramatici CFG în formă normală Chomsky.
+### 3.3 Alte funcții cheie
 
-## 4. Rezultate
+* **`_rm_unit`** – elimină toate regulile `A → B`, propagând direct regulile lui `B` în `A`.
+* **`_rm_useless`** – filtrează simboluri care:
 
-Am testat implementarea pe Variant 1:
+  * nu pot duce la terminale (neproductive);
+  * nu pot fi atinse din simbolul de start (inaccesibile).
+* **`_term_to_var`** – pentru producții precum `A → aB`, introduce un nou neterminal `T1 → a`, apoi `A → T1B`.
+* **`_break_long`** – transformă reguli de lungime > 2, ca `A → BCD`, într-un lanț de reguli binare:
+
+  ```text
+  A  → BX1  
+  X1 → CX2  
+  X2 → D
+  ```
+* **`to_cnf`** – funcție orchestrator care aplică toți pașii de mai sus în ordine corectă.
+* **`pretty`** – formatează gramatica într-un format textual lizibil.
+
+---
+
+## 4. Rezultate obținute
+
+Am testat implementarea pe **varianta 1** din laborator:
 
 ```python
 variant1 = [
@@ -105,56 +130,62 @@ variant1 = [
     "E->aB",
     "D->abC"
 ]
-cnf = to_cnf(variant1, start="S")
-print(pretty(cnf))
 ```
 
-**Ieșire intermediară (pe scurt):**
+### Ieșiri intermediare:
 
-* Gramatică inițială
-  `S → aB | AC`
-  `A → a | ASC | BC | aD`
-  …
+1. **Inițial**:
 
-* După ε-eliminare
-  C nu mai generează ε, dar am adăugat variante fără C în părțile drepte.
+   * Reguli complexe, terminale amestecate cu neterminale, `ε` și `unit-productions` prezente.
+2. **După eliminare `ε`**:
 
-* După unit-eliminare
-  Toate `A → X` (unde `X` e nonterminal) au dispărut, iar `A` preia direct producțiile lui `X`.
+   * Reguli alternative generate pentru a reflecta prezența sau absența simbolului `C`.
+3. **După eliminare unități**:
 
-* După eliminarea nefolositorilor
-  `S, A, B, C, D` rămân; `E` se exclude dacă nu e accesibil.
+   * Toate regulile de tip `A → B` dispar. Se înlocuiesc cu regulile `B`.
+4. **Simboluri neproductive**:
 
-* După înlocuirea terminalelor
-  Introduc `T1 → a`, `T2 → b` și înlocuiesc, de ex., `abC` → `(T1,T2,C)`.
-
-* **CNF finală**
+   * `E` este eliminat (nu e accesibil din `S`).
+5. **După transformări terminale și binare**:
 
 ```text
-A  → AS | AX2 | BC | T1D | T2S | a | b
-B  → T2S | b
-C  → T2A
-D  → T1T2 | T1X3
-S  → AC | AS | AX1 | BC | T1B | T1D | T2S | a | b
-T1 → a
-T2 → b
-X1 → SC
-X2 → SC
-X3 → T2C
+A  → AS | AX2 | BC | T1D | T2S | a | b  
+B  → T2S | b  
+C  → T2A  
+D  → T1T2 | T1X3  
+S  → AC | AS | AX1 | BC | T1B | T1D | T2S | a | b  
+T1 → a  
+T2 → b  
+X1 → SC  
+X2 → SC  
+X3 → T2C  
 ```
+
+Am adăugat neterminale noi (`T1`, `T2`, `X1`, etc.) pentru a respecta forma strictă CNF.
+
+---
 
 ## 5. Concluzii
 
-Am parcurs toţi paşii teoretici de normalizare: ε-eliminare, unit-eliminare, filtre „utile”, transformări de terminale şi „spargeri” binare.
+Am construit un convertor complet pentru transformarea CFG în Chomsky Normal Form. Am aplicat toți pașii standard din teorie, cu vizibilitate asupra etapelor intermediare pentru depanare și verificare.
 
-Implementarea generează un convertor generic care poate primi orice gramatică CFG și o transformă în CNF.
+### Beneficii ale implementării:
 
-Prin afișarea etapelor intermediară, am putut verifica fiecare pas și am eliminat ușor erorile (de exemplu producțiile ε rămase accidental).
+* **Genericitate** – poate procesa orice gramatică CFG dată sub formă de liste de stringuri;
+* **Modularitate** – ușor de extins, de exemplu pentru input din fișiere `.txt`;
+* **Educațional** – afișarea pașilor intermediari permite întelegerea profundă a procesului de conversie.
 
-Versiunea finală este robustă și poate fi extinsă pentru input din fișiere sau pentru acceptarea de gramatici mai mari.
+### Posibile îmbunătățiri viitoare:
+
+* Interfață grafică pentru vizualizarea arborelui de derivare;
+* Suport pentru reguli cu simboluri multiple pe partea stângă (ex: meta-gramatici);
+* Optimizări de performanță pentru gramatici mari.
+
+---
 
 ## 6. Referințe
 
-* Chomsky, N. (1959). *On certain formal properties of grammars*. Information and Control.
+* Chomsky, N. (1959). *On certain formal properties of grammars*. *Information and Control*.
 * Aho, A. V., & Ullman, J. D. (1972). *The Theory of Parsing, Translation, and Compiling*.
-* Hopcroft, J. E., Motwani, R., & Ullman, J. D. (2006). *Introduction to Automata Theory, Languages, and Computation*, 3rd ed.
+* Hopcroft, J. E., Motwani, R., & Ullman, J. D. (2006). *Introduction to Automata Theory, Languages, and Computation* (3rd ed.).
+* Lecture notes – Universitatea Tehnică a Moldovei, curs "Limbaje Formale și Automate Finite".

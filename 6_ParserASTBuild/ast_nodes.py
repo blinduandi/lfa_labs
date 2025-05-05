@@ -28,3 +28,11 @@ class UnaryOp(ASTNode):
         self.operand = operand
     def __repr__(self):
         return f"UnOp({self.op}, {self.operand})"
+class FuncCall:
+    def __init__(self, name, argument):
+        self.name = name
+        self.argument = argument
+
+    def __repr__(self):
+        return f"FuncCall({self.name}, {self.argument})"
+

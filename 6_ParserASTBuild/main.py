@@ -10,7 +10,8 @@ if __name__ == "__main__":
     tests = [
         "x + 3*(y - 2)",
         "a*(b + c) - 42",
-        "-(10 / (2 + z))"
+        "-(10 / (2 + z))",
+        "sin(x) + 3 * cos(2)"
     ]
 
     for expr in tests:

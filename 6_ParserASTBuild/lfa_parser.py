@@ -1,6 +1,5 @@
-# src/lfa_parser.py
 from lexer import Lexer, TokenType
-from ast_nodes import Number, Variable, BinaryOp, UnaryOp
+from ast_nodes import Number, Variable, BinaryOp, UnaryOp, FuncCall
 
 class Parser:
     def __init__(self, text: str):
@@ -37,23 +36,37 @@ class Parser:
 
     def factor(self):
         tok = self.current
+
         # unary + or -
         if tok.type in (TokenType.PLUS, TokenType.MINUS):
             self.eat(tok.type)
             return UnaryOp(tok.lexeme, self.factor())
+
+        # function call: sin(x), cos(45), etc.
+        elif tok.type == TokenType.FUNC:
+            func_name = tok.lexeme
+            self.eat(TokenType.FUNC)
+            self.eat(TokenType.LPAREN)
+            arg = self.expr()
+            self.eat(TokenType.RPAREN)
+            return FuncCall(func_name, arg)
+
         # number literal
         elif tok.type == TokenType.NUMBER:
             self.eat(TokenType.NUMBER)
             return Number(float(tok.lexeme))
-        # identifier
+
+        # variable
         elif tok.type == TokenType.IDENTIFIER:
             self.eat(TokenType.IDENTIFIER)
             return Variable(tok.lexeme)
-        # parenthesized expression
+
+        # parentheses
         elif tok.type == TokenType.LPAREN:
             self.eat(TokenType.LPAREN)
             node = self.expr()
             self.eat(TokenType.RPAREN)
             return node
+
         else:
             raise SyntaxError(f"Unexpected token {tok}")
